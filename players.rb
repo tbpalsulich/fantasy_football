@@ -13,21 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'unirest'
 require_relative 'quarterback'
 
-response = Unirest.get "http://api.fantasy.nfl.com/players/stats",
-                       headers:{ "Accept" => "application/json" }, 
-                       parameters:{ :statType => "seasonStats", :season => 2013, :format => "json" }
-
-players = Hash.new { |hash, key| hash[key] = [] }
-response.body["players"].each do |player|
-    players[player["position"]] << player
-end
-players["QB"].select! { |qb| qb["stats"].has_key?("5") and qb["stats"].has_key?("3") and qb["stats"].has_key?("2")}
-players["QB"].map! { |qb| Quarterback.new(qb["name"], qb["stats"]["2"], qb["stats"]["3"], qb["stats"]["5"], qb["name"])}
-players["QB"].select! { |qb| qb.yards > 1000 }
-players["QB"].sort! { |a, b| a.name <=> b.name }
-
 puts "Quarterbacks:"
-puts players["QB"].map { |qb| qb.to_s }.join("\n")
+puts Quarterback.pull().map{|qb| qb.to_s }.join("\n")
