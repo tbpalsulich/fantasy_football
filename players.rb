@@ -23,8 +23,9 @@ players = Hash.new { |hash, key| hash[key] = [] }
 response.body["players"].each do |player|
     players[player["position"]] << player
 end
+players["QB"].select! { |qb| qb["stats"].has_key?("5") }
+# players["QB"].sort! { |a, b| a["stats"]["5"].to_i <=> b["stats"]["5"].to_i }
+players["QB"].sort! { |a, b| a["name"] <=> b["name"] }
 
-players.each do |position, player_list|
-    puts "***************************************"
-    puts position + ": " + player_list.map { |player| player["name"] + " (" + player["teamAbbr"] + ")" }.join(", ")
-end
+puts "Quarterbacks:"
+puts players["QB"].map { |qb| qb["name"] + " (" + qb["teamAbbr"] + ", " + qb["stats"]["5"] + " yd)" }.join("\n")
